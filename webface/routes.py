@@ -1,5 +1,5 @@
 from . import app
-from .models import User
+from .models import User ,Addresses
 from flask import render_template, request, redirect, url_for, session, flash
 import functools
 
@@ -20,12 +20,21 @@ def prihlasit(function):
 
 
 @app.route("/", methods=["GET"])
-@db_session
 def index():
-    temp = []
-    for user in User.select():
-        temp.append([user.nick, user.passwd])
-    return render_template("base.html.j2", temp=temp)
+    return render_template("base.html.j2")
+
+@app.route("/", methods=["POST"])
+@db_session
+def index_post():
+    url= request.form.get("url")
+    shortcut= "", join([random.choise(string.ascii_letter)for i in range(7)])
+    address= Addresses.get(shortcut=shortcut)
+    while address is not None:
+        shortcut: "", join([random.choise(string.ascii_letter)for i in range(7)])
+        address= Addresses.get(shortcut=shortcut)
+        print("znova")
+    address= Addresses.get(shortcut=shortcut)
+    return redirect(url_for("index",shortcut=shortcut)
 
 
 @app.route("/add/", methods=["GET"])
