@@ -90,11 +90,13 @@ footer {
 }
 
 .url {
-  text-align: center:
-  fonot-size: 150%:
+  text-align: left;
+  font-size: 150%;
+  width: 150%;
 }
 
 .url input {
-  font-size: 110%:
+  font-size: 110%;
+  width: 65%;
 }
 /*# sourceMappingURL=styles.css.map */
