@@ -2,6 +2,8 @@ from . import app
 from .models import User ,Addresses
 from flask import render_template, request, redirect, url_for, session, flash
 import functools
+import random
+import string
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -20,21 +22,40 @@ def prihlasit(function):
 
 
 @app.route("/", methods=["GET"])
+@db_session
 def index():
+    shortcut= request.args.get("shortcut")
+    if shortcut and Addresses.get(shortcut=shortcut):
+        pass
+    else:
+        shortcut=None
     return render_template("base.html.j2")
 
 @app.route("/", methods=["POST"])
 @db_session
 def index_post():
     url= request.form.get("url")
-    shortcut= "", join([random.choise(string.ascii_letter)for i in range(7)])
-    address= Addresses.get(shortcut=shortcut)
-    while address is not None:
-        shortcut: "", join([random.choise(string.ascii_letter)for i in range(7)])
+    if url:
+        shortcut= "".join([random.choise(string.ascii_letter)for i in range(7)])
         address= Addresses.get(shortcut=shortcut)
-        print("znova")
-    address= Addresses.get(shortcut=shortcut)
-    return redirect(url_for("index",shortcut=shortcut)
+        while address is not None:
+            shortcut: "".join([random.choise(string.ascii_letter)for i in range(7)])
+            address= Addresses.get(shortcut=shortcut)
+        if "nick" in session:
+            address=Addresses(url=url, shortcut=shortcut, user=User.get(nick=session["nick"]))
+        else:
+            address=Addresses(url=url, shortcut=shortcut) 
+        return redirect(url_for("index",shortcut=shortcut))
+    else:
+        return redirect(ulr_for("index",shortcut=shortcut))
+
+@app.route("/<path:shortcut>/",methods=["GET"])
+@db_session
+def shortcut_get(shortcut):
+    if url := Addresses.get(shortcut=shortcut).url:
+        return redirect(url)
+    else:
+        return redirect(url_for("index"))
 
 
 @app.route("/add/", methods=["GET"])
@@ -95,12 +116,3 @@ def logout():
     return redirect(url_for("index"))
 
 
-@app.route("/text/")
-def text():
-    return """
-
-<h1>Text</h1>
-
-<p>toto je text</p>
-
-"""

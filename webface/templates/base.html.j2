@@ -47,9 +47,17 @@
 {% block obsah %}
 <main>
 
-<form>
-<p class="url"><input type="text" name="ulr" id="url" /></p>
+<form method="post">
+<p class="url">URL pro zkrácení<br>
+<input type="text" size="120%" name="ulr" id="url" />
+<input type="submit" value="Zkrátit"/>
 </form>
+</p>
+
+{% if shortcut %}
+  <p class="shortcut">Zkratka: <a href="/{{shortcut}}">{{shortcut}}</a></p>
+{% endif %}
+
 {{ temp }}
 
 {#{% filter markdown %}#}
