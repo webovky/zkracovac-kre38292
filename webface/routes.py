@@ -29,13 +29,12 @@ def index():
         pass
     else:
         shortcut=None
-    
+        
     if "nick" in session:
         user = User.get(nick=session["nick"])
         addresses = Addresses.select(lambda a: a.user == user)
-       
-    return render_template("base.html.j2", shortcut=shortcut, addresses=list(addresses))
-
+        return render_template("base.html.j2", shortcut=shortcut, addresses=list(addresses))
+    return render_template("base.html.j2", shortcut=shortcut)
 
 @app.route("/", methods=["POST"])
 @db_session
