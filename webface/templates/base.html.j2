@@ -48,6 +48,7 @@
 <main>
 
 <form method="post">
+
   <p class="url">URL pro zkrácení<br>
   <input type="text" name="url" id="url" />
   <input type="submit" value="Zkrátit" />
@@ -57,6 +58,17 @@
 {% if shortcut %}
   <p class="shortcut">Zkratka: <a href="/{{shortcut}}">{{ shortcut }}</a></p>
 {% endif %}
+
+{% if 'nick' in session and addresses %}
+  <table>
+  {% for addr in addresses %}
+    <tr>{{ addr.shortcut }} = {{ addr.url }}</tr><br>
+    <br>
+  </table>
+  {% endfor %}
+{% endif %}
+
+{{ temp }}
 
 
 {#{% filter markdown %}#}

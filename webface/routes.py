@@ -17,19 +17,25 @@ def prihlasit(function):
             return function(*args, **kwargs)
         else:
             return redirect(url_for("login", url=request.path))
-
     return wrapper
 
 
 @app.route("/", methods=["GET"])
 @db_session
 def index():
-    shortcut = request.args.get("shortcut")
+       
+    shortcut= request.args.get("shortcut")
     if shortcut and Addresses.get(shortcut=shortcut):
         pass
     else:
-        shorcut = None
-    return render_template("base.html.j2", shortcut=shortcut)
+        shortcut=None
+    
+    if "nick" in session:
+        user = User.get(nick=session["nick"])
+        addresses = Addresses.select(lambda a: a.user == user)
+       
+    return render_template("base.html.j2", shortcut=shortcut, addresses=list(addresses))
+
 
 @app.route("/", methods=["POST"])
 @db_session
@@ -55,12 +61,33 @@ def index_post():
 
 @app.route("/<path:shortcut>/", methods=["GET"])
 @db_session
-def shortuct_get(shortuct):
-    if url := Adresses.get(shortcut=shortcut).url:
+def shortcut_get(shortcut):
+    if url := Addresses.get(shortcut=shortcut).url:
         return redirect(url)
     else:
         return redirect(url_for('/'))
+    if url:
+        shortcut= "".join([random.choise(string.ascii_letter)for i in range(7)])
+        address= Addresses.get(shortcut=shortcut)
+        while address is not None:
+            shortcut= "".join([random.choise(string.ascii_letter)for i in range(7)])
+            address= Addresses.get(shortcut=shortcut)
+        if "nick" in session:
+            address=Addresses(url=url, shortcut=shortcut, user=User.get(nick=session["nick"]))
+        else:
+            address=Addresses(url=url, shortcut=shortcut) 
+        return redirect(url_for("index",shortcut=shortcut))
+    else:
+        return redirect(ulr_for("index",shortcut=shortcut))
 
+
+@app.route("/<path:shortcut>/",methods=["GET"])
+@db_session
+def shorttuc_get(shortcut):
+    if url := Addresses.get(shortcut=shortcut).url:
+        return redirect(url)
+    else:
+        return redirect(url_for("index"))
 
 
 @app.route("/add/", methods=["GET"])
@@ -74,7 +101,6 @@ def add_post():
     nick = request.form.get("nick")
     passwd1 = request.form.get("passwd1")
     passwd2 = request.form.get("passwd2")
-
     if not all([nick, passwd1, passwd2]):
         flash("Musíš vyplnit všechna políčka", "error")
     else:
@@ -87,7 +113,6 @@ def add_post():
             user = User(nick=nick, passwd=generate_password_hash(passwd1))
             flash("Uživatel úspěšně vytvořen!", "success")
             session["nick"] = nick
-
     return redirect(url_for("add"))
 
 
@@ -101,7 +126,6 @@ def login():
 def login_post():
     nick = request.form.get("nick")
     passwd = request.form.get("passwd")
-
     if all([nick, passwd]):
         user = User.get(nick=nick)
         if user and check_password_hash(user.passwd, passwd):
@@ -118,4 +142,5 @@ def login_post():
 @app.route("/logout/")
 def logout():
     session.pop("nick", None)
+    return redirect(url_for("index"))
     return redirect(url_for("index"))
