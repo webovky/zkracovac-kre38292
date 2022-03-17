@@ -58,6 +58,19 @@ def index_post():
     else:
         return redirect(url_for("index"))
 
+
+@app.route("/remove", methods=["POST"])
+@db_session
+def remove_post():
+    if "nick" in session:
+        rmid = request.form.get("rmid")
+        user = User.get(nick=session["nick"])
+        addr = Addresses.get(id=rmid, user = user)
+        if addr:
+            addr.delete()
+    return redirect(url_for("index"))
+
+
 @app.route("/<path:shortcut>/", methods=["GET"])
 @db_session
 def shortcut_get(shortcut):
